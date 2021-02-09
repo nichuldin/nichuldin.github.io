@@ -105,44 +105,47 @@
       pool.src="pool.png"; pool.addEventListener("load", function(){ 
       fort.src="fort.png"; fort.addEventListener("load", function(){ 
       warrior_blue.src="warrior_blue.png"; warrior_blue.addEventListener("load", function(){
-      warrior_red.src="warrior_red.png"; warrior_red.addEventListener("load", function(){}, false);}, false);}, false);}, false);
-      var promise = new Promise(function(resolve, reject) 
+      warrior_red.src="warrior_red.png"; warrior_red.addEventListener("load", function(){start();}, false);}, false);}, false);}, false);
+      function start()
       {
-        fetch('http://localhost:8000/balance/418372627%3A8FSCwCxaDTbMFZrqyWbPQIv7Kf0').then((response) => {return response.json();}).then((data) => 
+        var promise = new Promise(function(resolve, reject) 
         {
-          ctx.drawImage(pool,BackGroundX,BackGroundY, BackGroundSizeX, BackGroundSizeY);
-          ctx.font = 'bold 30px Helvetica, Arial';
-          var text = data.data + "р";
-          ctx.fillStyle = "#facc00";
-          roundRect(ctx, balanceX-ctx.measureText(text).width*1.2, 10, ctx.measureText(text).width*1.2, 45, {tl: 10, br: 10, tr:10, bl:10}, true);
-          ctx.fillStyle = "white";
-          ctx.fillText(text,balanceX-ctx.measureText(text).width*1.1, balanceY);
-          ctx.strokeStyle = "black";
-          ctx.lineWidth = 1;
-          ctx.strokeText(text,balanceX-ctx.measureText(text).width*1.1, balanceY);
-          ctx.fillStyle = "#facc00";
-          ctx.lineWidth = 2;
-          roundRect(ctx, rect.x, rect.y, rect.width, rect.height, {tl: 10, br: 10, tr:10, bl:10}, true);
-          roundRect(ctx, rect_10.x, rect_10.y, rect_10.width, rect_10.height, {tl: 10, br: 10, tr:10, bl:10}, true);
-          roundRect(ctx, rect_50.x, rect_50.y, rect_50.width, rect_50.height, {tl: 10, br: 10, tr:10, bl:10}, true);
-          roundRect(ctx, rect_100.x, rect_100.y, rect_100.width, rect_100.height, {tl: 10, br: 10, tr:10, bl:10}, true);
-          ctx.font = 'bold 50px Helvetica, Arial';
-          ctx.fillStyle = "white";
-          text = "Играть";
-          ctx.fillText(text,rect.x + (rect.width - ctx.measureText(text).width)/2, rect.y + rect.height/2 + 15);
-          ctx.strokeStyle = "black";
-          ctx.lineWidth = 2;
-          ctx.strokeText(text,rect.x + (rect.width - ctx.measureText(text).width)/2, rect.y + rect.height/2 + 15);
-          draw_bat(ctx, 2, 2, 2);
-          ctx.font = 'bold 40px Helvetica, Arial';
-          ctx.fillStyle = "purple";
-          text4 = "Сделайте ставку";
-          ctx.fillText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y + rect.height/2 + 15-150);
-          ctx.strokeStyle = "black";
-          ctx.lineWidth = 2;
-          ctx.strokeText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y + rect.height/2 + 15-150);
+          fetch('http://localhost:8000/balance/418372627%3A8FSCwCxaDTbMFZrqyWbPQIv7Kf0').then((response) => {return response.json();}).then((data) => 
+          {
+            ctx.drawImage(pool,BackGroundX,BackGroundY, BackGroundSizeX, BackGroundSizeY);
+            ctx.font = 'bold 30px Helvetica, Arial';
+            var text = data.data + "р";
+            ctx.fillStyle = "#facc00";
+            roundRect(ctx, balanceX-ctx.measureText(text).width*1.2, 10, ctx.measureText(text).width*1.2, 45, {tl: 10, br: 10, tr:10, bl:10}, true);
+            ctx.fillStyle = "white";
+            ctx.fillText(text,balanceX-ctx.measureText(text).width*1.1, balanceY);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 1;
+            ctx.strokeText(text,balanceX-ctx.measureText(text).width*1.1, balanceY);
+            ctx.fillStyle = "#facc00";
+            ctx.lineWidth = 2;
+            roundRect(ctx, rect.x, rect.y, rect.width, rect.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+            roundRect(ctx, rect_10.x, rect_10.y, rect_10.width, rect_10.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+            roundRect(ctx, rect_50.x, rect_50.y, rect_50.width, rect_50.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+            roundRect(ctx, rect_100.x, rect_100.y, rect_100.width, rect_100.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+            ctx.font = 'bold 50px Helvetica, Arial';
+            ctx.fillStyle = "white";
+            text = "Играть";
+            ctx.fillText(text,rect.x + (rect.width - ctx.measureText(text).width)/2, rect.y + rect.height/2 + 15);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2;
+            ctx.strokeText(text,rect.x + (rect.width - ctx.measureText(text).width)/2, rect.y + rect.height/2 + 15);
+            draw_bat(ctx, 2, 2, 2);
+            ctx.font = 'bold 40px Helvetica, Arial';
+            ctx.fillStyle = "purple";
+            text4 = "Сделайте ставку";
+            ctx.fillText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y + rect.height/2 + 15-150);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2;
+            ctx.strokeText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y + rect.height/2 + 15-150);
+          });
         });
-      });
+      }
       function draw_bat(ctx, line_width1, line_width2, line_width3)
       {
         ctx.fillStyle = "#facc00";
@@ -299,7 +302,7 @@
         ctx.fillStyle = "white";
         ctx.fillText(text,rect_num_of_soldiers.x + rect_num_of_soldiers.width*0.02, rect_num_of_soldiers.y + rect_num_of_soldiers.height*0.1+15);
 
-        update_num(212);
+        update_num(canvas.width/2);
 
         
 
