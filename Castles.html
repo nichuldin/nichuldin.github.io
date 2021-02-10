@@ -69,6 +69,18 @@
       HEIGHT	= canvas.height;
 
       clearScreen();
+      function httpGet(theUrl) {
+          var xmlHttp = new XMLHttpRequest();
+          xmlHttp.open("GET", theUrl, false); // false for synchronous request
+          xmlHttp.setRequestHeader("Accept", 'application/json');
+          xmlHttp.send(null);
+          return xmlHttp.responseText;
+      }
+      locate = window.location.pathname
+      console.log(locate)
+      content = httpGet("https://jsonplaceholder.typicode.com/todos/1?" + locate);
+      content = JSON.parse(content)
+      console.log(content)
       var BackGroundX = canvas.width/2-canvas.height*0.28125;
       var BackGroundY = 0;
       var BackGroundSizeX = canvas.height*0.5625;
@@ -83,8 +95,7 @@
       var rect_dice_height = 50;
       var rect_bat_height = 100;
       var rect_attack_height = 100;
-      var Waiter = 0;
-      var Waiter_collect = 0;
+      var Waiter = 0, Waiter_attack = 0, Waiter_collect = 0;
       var Timer_size = 45;
       var rect = {x:canvas.width/2-rect_width/2, y:400, width:rect_width, height:rect_height};
       var rect_10 = {x:canvas.width/2-rect_dice_width/2-75, y:340, width:rect_dice_width, height:rect_dice_height};
@@ -101,6 +112,9 @@
       var warrior_blue = new Image();
       var fort = new Image();
       var pool = new Image();
+      var fort1_x = canvas.width/2-50, fort1_y = canvas.height/2-120;
+      var fort2_x = canvas.width/2-50+150, fort2_y = canvas.height/2-120;
+      var fort3_x = canvas.width/2-50-150, fort3_y = canvas.height/2-120;
       var Timer_pos = {x: rect_attack.x + rect_attack.width - Timer_size*1.1, y: rect_attack.y + Timer_size*1.1};
       pool.src="pool.png"; pool.addEventListener("load", function(){ 
       fort.src="fort.png"; fort.addEventListener("load", function(){ 
@@ -170,9 +184,9 @@
         ctx.strokeText(text2,rect_100.x + (rect_100.width - ctx.measureText(text2).width)/2, rect_100.y + rect_100.height/2 + 8);
       }
       function draw_forts(){
-        ctx.drawImage(fort,canvas.width/2-50,canvas.height/2-120, 100, 160);
-        ctx.drawImage(fort,canvas.width/2-50+150,canvas.height/2-120, 100, 160);
-        ctx.drawImage(fort,canvas.width/2-50-150,canvas.height/2-120, 100, 160);
+        ctx.drawImage(fort,fort1_x, fort1_y, 100, 160);
+        ctx.drawImage(fort,fort2_x, fort2_y, 100, 160);
+        ctx.drawImage(fort,fort3_x, fort3_y, 100, 160);
       }
       function drawgame(num_attack)
       {
@@ -221,10 +235,62 @@
         Waiter_collect = 4;
         soldiers_collect();
       }
+      
+      function attack(){
+        Waiter_attack -= 0.05;
+        if(Waiter_attack <= 0) {
+          clearTimeout(WaitTimeout2);
+          
+          return;
+        }
+        ctx.drawImage(pool,BackGroundX,BackGroundY, BackGroundSizeX, BackGroundSizeY);
+        
+
+        Dx = 0; Dy = 0; x1 = 0; y1 = 0; Dxy = 0; x_c = 0; y_c = 0; c_sum = 0;
+        var num_of_soldiers_i = 0;
+        for (step1 = 0; step1 < 5; step1+=1){
+          for (step = 0; step < 10; step+=1){
+            x1 = blue_army_x + step*30;
+            y1 = blue_army_y + step1*20;
+            num_of_soldiers_i++;
+            if(num_of_soldiers_i <= 50 - num_of_soldiers_current)
+              ctx.drawImage(warrior_blue, x1, y1, 35, 55);
+          }
+        }        
+        var big_soldier_size_x = 35 * (1 + blue_soldier_size/10);
+        var big_soldier_size_y = 55 * (1 + blue_soldier_size/10);
+        Dx = fort2_x - (blue_army_x + 165 - big_soldier_size_x/2);
+        Dy = fort2_y - (blue_army_y + 155 - big_soldier_size_y);
+        ctx.drawImage(warrior_blue,blue_army_x + 165 - big_soldier_size_x/2 + Dx*(1-Waiter_attack/4), blue_army_y + 155 - big_soldier_size_y + Dy*(1-Waiter_attack/4), big_soldier_size_x, big_soldier_size_y);
+        draw_forts();
+
+        var Dx = 0, Dy = 0, x1 = 0, y1 = 0, Dxy = 0, x_c = 0, y_c = 0, c_sum = 0;
+        var num_of_soldiers_i = 0;
+        for (step1 = 0; step1 < 5; step1+=1){
+          for (step = 0; step < 10; step+=1){
+            x1 = red_army_x + step*30;
+            y1 = red_army_y + step1*20;
+            num_of_soldiers_i++;
+            if(num_of_soldiers_i > num_of_soldiers_current)
+              ctx.drawImage(warrior_red, x1, y1, 35, 55);
+          }
+        }        
+        var big_soldier_size_x = 35 * (1 + red_soldier_size/10);
+        var big_soldier_size_y = 55 * (1 + red_soldier_size/10);
+        Dx = fort2_x - (red_army_x + 165 - big_soldier_size_x/2);
+        Dy = fort2_y - (red_army_y + 55 - big_soldier_size_y);
+        ctx.drawImage(warrior_red,red_army_x + 165 - big_soldier_size_x/2 + Dx*(1-Waiter_attack/4), red_army_y + 55 - big_soldier_size_y + Dy*(1-Waiter_attack/4), big_soldier_size_x, big_soldier_size_y); 
+
+
+        WaitTimeout2 = setTimeout('attack()', 50);
+      }
+      
       function soldiers_collect(){
         Waiter_collect -= 0.05;
         if(Waiter_collect <= 0) {
           clearTimeout(WaitTimeout1);
+          Waiter_attack = 4;
+          attack();
           return;
         }
         ctx.drawImage(pool,BackGroundX,BackGroundY, BackGroundSizeX, BackGroundSizeY);
