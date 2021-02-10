@@ -1,0 +1,254 @@
+<html>
+	<head>
+		<title>Full Screen Canvas Example</title>
+		<style>
+			html, body {
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body onresize="resizeCanvas()">
+	<canvas id="mainCanvas"></canvas>
+	<script>
+        var options = ["0", "1", "8", "2", "9", "3", "10", "4", "11", "5", "12", "6", "13", "7", "14"];
+        var colors = ["#11111b","#ff1a1a"]
+        var startAngle = 0;
+        var arc = Math.PI / (options.length / 2);
+        var spinTimeout = null;
+        var WaitTimeout = null;
+        var spinArcStart = 10;
+        var spinTime = 0;
+        var spinTimeTotal = 0;
+        var Waiter = 0;
+        var outsideRadius = 200;
+        var textRadius = 160;
+        var insideRadius = 80;
+        
+
+        var ctx;
+        canvas = document.getElementById('mainCanvas');
+        ctx = canvas.getContext("2d");
+        
+        canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        WIDTH	= canvas.width;
+        HEIGHT	= canvas.height;
+        
+        clearScreen();
+            
+        function resizeCanvas() {
+            canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            
+            WIDTH = canvas.width;
+            HEIGHT = canvas.height;
+            
+            clearScreen();
+        }
+        
+        function clearScreen() {
+            ctx.fillStyle = '#18192b';
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        }
+        var WheelPositionX = canvas.width/2;
+        var WheelPositionY = outsideRadius * 1.1;
+        
+        function byte2Hex(n) {
+        var nybHexString = "0123456789ABCDEF";
+        return String(nybHexString.substr((n >> 4) & 0x0F,1)) + nybHexString.substr(n & 0x0F,1);
+        }
+
+        function RGB2Color(r,g,b) {
+            return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
+        }
+
+        function getColor(item, maxitem) {
+        var phase = 0;
+        var center = 128;
+        var width = 127;
+        var frequency = Math.PI*2/maxitem;
+        
+        red   = Math.sin(frequency*item+2+phase) * width + center;
+        green = Math.sin(frequency*item+0+phase) * width + center;
+        blue  = Math.sin(frequency*item+4+phase) * width + center;
+        
+        return RGB2Color(red,green,blue);
+        }
+
+        function drawRouletteWheel() {
+        
+        if (canvas.getContext) {
+            ctx = canvas.getContext("2d");
+            ctx.strokeStyle = "#18192b";
+            ctx.lineWidth = 10;
+
+            ctx.font = '30px serif';
+        //options.length
+            for(var i = 0; i < options.length; i++) {
+                var angle = startAngle + i * arc;
+                if(i == 0){
+                    //ctx.fillStyle = "#00a062";
+                    //ctx.strokeStyle = "#00a062";
+                    var gradient = ctx.createLinearGradient(WheelPositionX-outsideRadius,0, WheelPositionY+outsideRadius,0);
+                    gradient.addColorStop(0, '#00761c');
+                    gradient.addColorStop(1, '#00a062');
+                    ctx.fillStyle = gradient;
+                }
+                else{
+                    //ctx.fillStyle = colors[i%2];
+                    //ctx.strokeStyle =  colors[i%2];
+                    if(i%2 == 0){
+                        var gradient = ctx.createLinearGradient(WheelPositionX-outsideRadius,0, WheelPositionY+outsideRadius,0);
+                        gradient.addColorStop(0, '#010000');
+                        gradient.addColorStop(1, '#11111b');
+                        ctx.fillStyle = gradient;
+                    }
+                    if(i%2 == 1){
+                        var gradient = ctx.createLinearGradient(WheelPositionX-outsideRadius,0, WheelPositionY+outsideRadius,0);
+                        gradient.addColorStop(0, '#c01414');
+                        gradient.addColorStop(1, '#ff1a1a');
+                        ctx.fillStyle = gradient;
+                    }
+                }
+                //ctx.fillStyle = getColor(i, options.length);
+                
+
+                ctx.beginPath();
+                ctx.arc(WheelPositionX, WheelPositionY, outsideRadius, angle, angle + arc, false);
+                ctx.arc(WheelPositionX, WheelPositionY, insideRadius, angle + arc, angle, true);
+                ctx.stroke();
+                ctx.fill();
+
+                ctx.save();
+                ctx.shadowOffsetX = -1;
+                ctx.shadowOffsetY = -1;
+                ctx.shadowBlur    = 0;
+                ctx.shadowColor   = "rgb(220,220,220)";
+                ctx.fillStyle = "white";
+                ctx.translate(WheelPositionX + Math.cos(angle + arc / 2) * textRadius, WheelPositionY + Math.sin(angle + arc / 2) * textRadius);
+                ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                var text = options[i];
+                ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+                ctx.restore();
+            } 
+            //ctx.arc(250, 250, outsideRadius);
+            ctx.strokeStyle =  "#f1d28e";
+            ctx.beginPath();
+            ctx.arc(WheelPositionX, WheelPositionY, insideRadius, 0, 360, false);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(WheelPositionX, WheelPositionY, outsideRadius, 0, 360, false);
+            ctx.stroke();
+            //Arrow
+
+            var gradient = ctx.createLinearGradient(WheelPositionX-30,0, WheelPositionY+30,0);
+            gradient.addColorStop(0, '#ebc054');
+            gradient.addColorStop(0.5, '#ebdaaa');
+            gradient.addColorStop(1, '#ebc054');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(WheelPositionX - 30, WheelPositionY - (outsideRadius + 5));
+            ctx.lineTo(WheelPositionX + 30, WheelPositionY - (outsideRadius + 5));
+            ctx.lineTo(WheelPositionX + 30, WheelPositionY - (outsideRadius - 5));
+            ctx.lineTo(WheelPositionX + 30, WheelPositionY - (outsideRadius - 5));
+            ctx.lineTo(WheelPositionX + 0, WheelPositionY - (outsideRadius - 30));
+            ctx.lineTo(WheelPositionX - 30, WheelPositionY - (outsideRadius - 5));
+            ctx.lineTo(WheelPositionX - 30, WheelPositionY - (outsideRadius - 5));
+            ctx.lineTo(WheelPositionX - 30, WheelPositionY - (outsideRadius + 5));
+            ctx.fill();
+        }
+        }
+        function drawTimer() {
+            Waiter -= 0.05;
+            if(Waiter <= 0) {
+                ctx.strokeStyle =  "#18192b";
+                ctx.fillStyle = "#18192b";
+                ctx.beginPath();
+                ctx.arc(WheelPositionX, WheelPositionY, 65, 0, 360, false);
+                ctx.stroke();
+                ctx.fill();
+                ctx.fillStyle = "#ffea21";
+                ctx.font = 'bold 30px Helvetica, Arial';
+                var text = "Идет игра" 
+                ctx.fillText(text, WheelPositionX - ctx.measureText(text).width / 2, WheelPositionY + 10);
+
+                clearTimeout(WaitTimeout);
+                spinAngleStart = Math.random() * 100 + 10;
+                spinTime = 5;
+                spinTimeTotal = Math.random() * 3 + 4 * 1000;
+                rotateWheel();
+                return;
+            }
+            //ctx = canvas.getContext("2d");
+
+            ctx.strokeStyle =  "#18192b";
+            ctx.fillStyle = "#18192b";
+            ctx.beginPath();
+            ctx.arc(WheelPositionX, WheelPositionY, 65, 0, 360, false);
+            ctx.stroke();
+            ctx.fill();
+            ctx.lineWidth = 20;
+            ctx.strokeStyle =  "#ffea21";
+            ctx.fillStyle = "#ffea21";
+            ctx.beginPath();
+            ctx.arc(WheelPositionX, WheelPositionY, 60, -Math.PI/2+((20-Waiter)/20)*Math.PI*2, Math.PI*3/2, false);
+            ctx.stroke();
+            //ctx.fill();
+
+            ctx.fillStyle = "#ffea21";
+            ctx.font = 'bold 60px Helvetica, Arial';
+            var text = Math.trunc(Waiter+0.8) 
+            ctx.fillText(text, WheelPositionX - ctx.measureText(text).width / 2, WheelPositionY + 20);
+            WaitTimeout = setTimeout('drawTimer()', 50);
+            
+        }
+        function spin() {
+        Waiter = 20;
+        drawTimer();
+        }
+
+        function rotateWheel() {
+        spinTime += 10;
+        if(spinTime >= spinTimeTotal) {
+            stopRotateWheel();
+            return;
+        }
+        var spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+        startAngle += (spinAngle * Math.PI / 180);
+        drawRouletteWheel();
+        spinTimeout = setTimeout('rotateWheel()', 30);
+        }
+
+        function stopRotateWheel() {
+        clearTimeout(spinTimeout);
+        var degrees = startAngle * 180 / Math.PI + 90;
+        var arcd = arc * 180 / Math.PI;
+        var index = Math.floor((360 - degrees % 360) / arcd);
+        ctx.save();
+        ctx.strokeStyle =  "#18192b";
+        ctx.fillStyle = "#18192b";
+        ctx.beginPath();
+        ctx.arc(WheelPositionX, WheelPositionY, 65, 0, 360, false);
+        ctx.stroke();
+        ctx.fill();
+        ctx.fillStyle = "white";
+        ctx.font = 'bold 40px Helvetica, Arial';
+        var text = options[index]
+        ctx.fillText(text, WheelPositionX - ctx.measureText(text).width / 2, WheelPositionY + 10);
+        ctx.restore();
+        }
+
+        function easeOut(t, b, c, d) {
+        var ts = (t/=d)*t;
+        var tc = ts*t;
+        return b+c*(tc + -3*ts + 3*t);
+        }
+        drawRouletteWheel();
+        spin();
+        setInterval(function(){
+            spin();},37000);
+
+</script>
+
+</body>
+</html>
