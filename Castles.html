@@ -78,7 +78,7 @@
       }
       locate = window.location.pathname
       console.log(locate)
-      content = httpGet("https://jsonplaceholder.typicode.com/todos/1?" + locate);
+      content = httpGet(locate);
       content = JSON.parse(content)
       console.log(content)
       var BackGroundX = canvas.width/2-canvas.height*0.28125;
