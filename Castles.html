@@ -90,13 +90,13 @@
       var rect_attack_height = 100;
       var Waiter = 0, Waiter_attack = 0, Waiter_collect = 0;
       var Timer_size = 45;
-      var rect = {x:canvas.width/2-rect_width/2, y:400, width:rect_width, height:rect_height};
-      var rect_10 = {x:canvas.width/2-rect_dice_width/2-75, y:340, width:rect_dice_width, height:rect_dice_height};
-      var rect_50 = {x:canvas.width/2-rect_dice_width/2-10, y:340, width:rect_dice_width, height:rect_dice_height};
-      var rect_100 = {x:canvas.width/2-rect_dice_width/2+55, y:340, width:rect_dice_width+20, height:rect_dice_height};
+      var rect = {x:canvas.width/2-rect_width/2, y:canvas.height/2 - rect_height/2, width:rect_width, height:rect_height};
+      var rect_10 = {x:canvas.width/2-rect_dice_width/2-75, y:canvas.height/2 - rect.height*1.4, width:rect_dice_width, height:rect_dice_height};
+      var rect_50 = {x:canvas.width/2-rect_dice_width/2-10, y:rect_10.y, width:rect_dice_width, height:rect_dice_height};
+      var rect_100 = {x:canvas.width/2-rect_dice_width/2+55, y:rect_10.y, width:rect_dice_width+20, height:rect_dice_height};
       var rect_attack = {x:canvas.width/2-rect_attack_width/2, y:140, width:rect_attack_width, height:rect_attack_height};
-      var rect_num_of_soldiers = {x:canvas.width/2-rect_bat_width/2, y:580, width:rect_bat_width, height:rect_bat_height};
-      var slider_soldiers = {x:canvas.width/2-rect_bat_width/2+20, y:625, width:rect_bat_width-100, height:rect_bat_height/3};
+      var rect_num_of_soldiers = {x:canvas.width/2-rect_bat_width/2, y:canvas.height*7/9, width:rect_bat_width, height:rect_bat_height};
+      var slider_soldiers = {x:canvas.width/2-rect_bat_width/2+20, y:canvas.height*0.84, width:rect_bat_width-100, height:rect_bat_height/3};
       var bat = 0;
       var red_army = {x:canvas.width/2-BackGroundSizeX/2 * 0.6, y:canvas.height*3/4, size:canvas.height/22};
       var blue_army = {x:canvas.width/2-BackGroundSizeX/2 * 0.9, y:canvas.height/12, size:canvas.height/22};
@@ -166,10 +166,10 @@
             ctx.font = 'bold 40px Helvetica, Arial';
             ctx.fillStyle = "purple";
             text4 = "Сделайте ставку";
-            ctx.fillText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y + rect.height/2 + 15-150);
+            ctx.fillText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y - rect.height*1.5);
             ctx.strokeStyle = "black";
             ctx.lineWidth = 2;
-            ctx.strokeText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y + rect.height/2 + 15-150);
+            ctx.strokeText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y - rect.height*1.5);
           });
         });
       }
