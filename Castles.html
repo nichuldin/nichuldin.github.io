@@ -1,0 +1,467 @@
+<html>
+	<head>
+		<title>Castles_game</title>
+		<style>
+			html, body {
+				overflow: hidden;
+			}
+		</style>
+	</head>
+  <body onresize="resizeCanvas()">
+		<canvas id="mainCanvas">
+		</canvas>
+		<script>
+			function resizeCanvas() {
+				canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+				canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+				
+				WIDTH = canvas.width;
+				HEIGHT = canvas.height;
+				
+				clearScreen();
+			}
+			
+			function clearScreen() {
+				ctx.fillStyle = '#18192b';
+				ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      }
+      function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+        if (typeof stroke == 'undefined') {
+          stroke = true;
+        }
+        if (typeof radius === 'undefined') {
+          radius = 5;
+        }
+        if (typeof radius === 'number') {
+          radius = {tl: radius, tr: radius, br: radius, bl: radius};
+        } else {
+          var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+          for (var side in defaultRadius) {
+            radius[side] = radius[side] || defaultRadius[side];
+          }
+        }
+        ctx.beginPath();
+        ctx.moveTo(x + radius.tl, y);
+        ctx.lineTo(x + width - radius.tr, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+        ctx.lineTo(x + width, y + height - radius.br);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+        ctx.lineTo(x + radius.bl, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+        ctx.lineTo(x, y + radius.tl);
+        ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+        ctx.closePath();
+        if (fill) {
+          ctx.fill();
+        }
+        if (stroke) {
+          ctx.stroke();
+        }
+
+      }
+      
+      canvas = document.getElementById('mainCanvas');
+      ctx = canvas.getContext("2d");
+      
+      canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      WIDTH	= canvas.width;
+      HEIGHT	= canvas.height;
+      clearScreen();
+
+      locate = window.location.href
+      var re = locate.split("?");
+      var user_id = re[1] 
+      var user_token = re[2].split("#")[0]
+
+      var link = 'https://bde376cc8b83.ngrok.io/balance/'+user_id+'%3A'+user_token;
+
+      var num_of_soldiers = 100;
+      var BackGroundX = canvas.width/2-canvas.height*0.28125;
+      var BackGroundY = 0;
+      var BackGroundSizeX = canvas.height*0.5625;
+      var BackGroundSizeY = canvas.height;
+      var balanceX = canvas.width/2 + BackGroundSizeX/2;
+      var balanceY = 42;
+      var rect_width = 200;
+      var rect_dice_width = 50;
+      var rect_attack_width = 350;
+      var rect_bat_width = 350;
+      var rect_height = 70;
+      var rect_dice_height = 50;
+      var rect_bat_height = 100;
+      var rect_attack_height = 100;
+      var Waiter = 0, Waiter_attack = 0, Waiter_collect = 0;
+      var Timer_size = 45;
+      var rect = {x:canvas.width/2-rect_width/2, y:canvas.height/2 - rect_height/2, width:rect_width, height:rect_height};
+      var rect_10 = {x:canvas.width/2-rect_dice_width/2-75, y:canvas.height/2 - rect.height*1.4, width:rect_dice_width, height:rect_dice_height};
+      var rect_50 = {x:canvas.width/2-rect_dice_width/2-10, y:rect_10.y, width:rect_dice_width, height:rect_dice_height};
+      var rect_100 = {x:canvas.width/2-rect_dice_width/2+55, y:rect_10.y, width:rect_dice_width+20, height:rect_dice_height};
+      var rect_attack = {x:canvas.width/2-rect_attack_width/2, y:140, width:rect_attack_width, height:rect_attack_height};
+      var rect_num_of_soldiers = {x:canvas.width/2-rect_bat_width/2, y:canvas.height*7/9, width:rect_bat_width, height:rect_bat_height};
+      var slider_soldiers = {x:canvas.width/2-rect_bat_width/2+20, y:canvas.height*0.84, width:rect_bat_width-100, height:rect_bat_height/3};
+      var bat = 0;
+      var red_army = {x:canvas.width/2-BackGroundSizeX/2 * 0.6, y:canvas.height*3/4, size:canvas.height/22};
+      var blue_army = {x:canvas.width/2-BackGroundSizeX/2 * 0.9, y:canvas.height/5, size:canvas.height/22};
+      var num_of_soldiers_current = 12;
+      var warrior_red = new Image();
+      var warrior_blue = new Image();
+      var balance = "";
+      var fort = new Image();
+      var pool = new Image();
+      var fort_size = {x: canvas.height/8, y: canvas.height/5};
+      var fort1 = {x: BackGroundX+BackGroundSizeX/6-fort_size.x/2, y: canvas.height/2-fort_size.y/2};
+      var fort2 = {x: (canvas.width-fort_size.x)/2, y: canvas.height/2-fort_size.y/2};
+      var fort3 = {x: BackGroundX+BackGroundSizeX*5/6-fort_size.x/2, y: canvas.height/2-fort_size.y/2};
+      var Timer_pos = {x: rect_attack.x + rect_attack.width - Timer_size*1.1, y: rect_attack.y + Timer_size*1.1};
+      pool.src="pool.png"; pool.addEventListener("load", function(){ 
+      fort.src="fort.png"; fort.addEventListener("load", function(){ 
+      warrior_blue.src="warrior_blue.png"; warrior_blue.addEventListener("load", function(){
+      warrior_red.src="warrior_red.png"; warrior_red.addEventListener("load", function(){start();}, false);}, false);}, false);}, false);
+      function draw_n_soldiers_red(cord_x, cord_y, sold_size, from, to){
+        var step;
+        var step1;
+        for (step = 0; step < 10; step++){
+          for (step1 = 0; step1 < to/10; step1++){
+            if(step + step1*10 < to && step + step1*10 >= from)
+              ctx.drawImage(warrior_red,cord_x + step*(BackGroundSizeX/15),cord_y + step1*(BackGroundSizeY/35), red_army.size, red_army.size/7*11);
+          }
+        }  
+      }
+      function draw_n_soldiers_blue(cord_x, cord_y, sold_size, from, to){
+        var step;
+        var step1;
+        for (step = 9; step >= 0; step-=1){
+          for (step1 = 0; step1 < to/10; step1+=1){
+            if(step + step1*10 >= 10-to%10 && step + step1*10 < num_of_soldiers-from)
+              ctx.drawImage(warrior_blue,cord_x + step*(BackGroundSizeX/15),cord_y - parseInt(to/10)*(BackGroundSizeY/35)+ step1*(BackGroundSizeY/35), blue_army.size, blue_army.size/7*11);
+          }
+        }
+      }
+      function start()
+      {
+        var promise = new Promise(function(resolve, reject) 
+        {
+          fetch(link).then((response) => {return response.json();}).then((data) => 
+          {
+            ctx.drawImage(pool,BackGroundX,BackGroundY, BackGroundSizeX, BackGroundSizeY);
+            ctx.font = 'bold 30px Helvetica, Arial';
+            balance = data.data + "р";
+            ctx.fillStyle = "#facc00";
+            roundRect(ctx, balanceX-ctx.measureText(balance).width*1.2, 10, ctx.measureText(balance).width*1.2, 45, {tl: 10, br: 10, tr:10, bl:10}, true);
+            ctx.fillStyle = "white";
+            ctx.fillText(balance,balanceX-ctx.measureText(balance).width*1.1, balanceY);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 1;
+            ctx.strokeText(balance,balanceX-ctx.measureText(balance).width*1.1, balanceY);
+            ctx.fillStyle = "#facc00";
+            ctx.lineWidth = 2;
+            roundRect(ctx, rect.x, rect.y, rect.width, rect.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+            roundRect(ctx, rect_10.x, rect_10.y, rect_10.width, rect_10.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+            roundRect(ctx, rect_50.x, rect_50.y, rect_50.width, rect_50.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+            roundRect(ctx, rect_100.x, rect_100.y, rect_100.width, rect_100.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+            ctx.font = 'bold 50px Helvetica, Arial';
+            ctx.fillStyle = "white";
+            var text = "Играть";
+            ctx.fillText(text,rect.x + (rect.width - ctx.measureText(text).width)/2, rect.y + rect.height/2 + 15);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2;
+            ctx.strokeText(text,rect.x + (rect.width - ctx.measureText(text).width)/2, rect.y + rect.height/2 + 15);
+            draw_bat(ctx, 2, 2, 2);
+            ctx.font = 'bold 40px Helvetica, Arial';
+            ctx.fillStyle = "purple";
+            text4 = "Сделайте ставку";
+            ctx.fillText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y - rect.height*1.5);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2;
+            ctx.strokeText(text4,rect.x + (rect.width - ctx.measureText(text4).width)/2, rect.y - rect.height*1.5);
+          });
+        });
+      }
+      function draw_bat(ctx, line_width1, line_width2, line_width3)
+      {
+        ctx.fillStyle = "#facc00";
+        ctx.lineWidth = line_width1;
+        roundRect(ctx, rect_10.x+line_width1/2, rect_10.y+line_width1/2, rect_10.width-line_width1, rect_10.height-line_width1, {tl: 10, br: 10, tr:10, bl:10}, true);
+        ctx.lineWidth = line_width2;
+        roundRect(ctx, rect_50.x+line_width2/2, rect_50.y+line_width2/2, rect_50.width-line_width2, rect_50.height-line_width2, {tl: 10, br: 10, tr:10, bl:10}, true);
+        ctx.lineWidth = line_width3;
+        roundRect(ctx, rect_100.x+line_width3/2, rect_100.y+line_width3/2, rect_100.width-line_width3, rect_100.height-line_width3, {tl: 10, br: 10, tr:10, bl:10}, true);
+        ctx.font = 'bold 22px Helvetica, Arial';
+        ctx.fillStyle = "white";
+        text = "10p";
+        ctx.fillText(text,rect_10.x + (rect_10.width - ctx.measureText(text).width)/2, rect_10.y + rect_10.height/2 + 8);
+        text1 = "50p";
+        ctx.fillText(text1,rect_50.x + (rect_50.width - ctx.measureText(text1).width)/2, rect_50.y + rect_50.height/2 + 8);
+        text2 = "100p";
+        ctx.fillText(text2,rect_100.x + (rect_100.width - ctx.measureText(text2).width)/2, rect_100.y + rect_100.height/2 + 8);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.strokeText(text,rect_10.x + (rect_10.width - ctx.measureText(text).width)/2, rect_10.y + rect_10.height/2 + 8);
+        ctx.strokeText(text1,rect_50.x + (rect_50.width - ctx.measureText(text1).width)/2, rect_50.y + rect_50.height/2 + 8);
+        ctx.strokeText(text2,rect_100.x + (rect_100.width - ctx.measureText(text2).width)/2, rect_100.y + rect_100.height/2 + 8);
+      }
+      function draw_forts(){
+        ctx.drawImage(fort,fort1.x, fort1.y, fort_size.x, fort_size.y);
+        ctx.drawImage(fort,fort2.x, fort2.y, fort_size.x, fort_size.y);
+        ctx.drawImage(fort,fort3.x, fort3.y, fort_size.x, fort_size.y);
+      }
+      function drawgame(num_attack)
+      {
+        var promise = new Promise(function(resolve, reject) 
+        {
+          fetch(link).then((response) => {return response.json();}).then((data) => 
+          {
+            ctx.lineWidth = 1;
+            ctx.drawImage(pool,BackGroundX,BackGroundY, BackGroundSizeX, BackGroundSizeY);
+            draw_forts();
+            ctx.font = 'bold 30px Helvetica, Arial';
+            var text = data.data + "р";
+            ctx.fillStyle = "#facc00";
+            roundRect(ctx, balanceX-ctx.measureText(text).width*1.2, 10, ctx.measureText(text).width*1.2, 45, {tl: 10, br: 10, tr:10, bl:10}, true);
+            ctx.fillStyle = "white";
+            ctx.fillText(text,balanceX-ctx.measureText(text).width*1.1, balanceY);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 1;
+            ctx.strokeText(text,balanceX-ctx.measureText(text).width*1.1, balanceY);
+            draw_n_soldiers_red(red_army.x, red_army.y, red_army.size, 0, num_of_soldiers);
+            draw_n_soldiers_blue(blue_army.x, blue_army.y, blue_army.size, 0, num_of_soldiers);
+            if(num_attack == 1){
+              fitst_attack();
+              Waiter = 20;
+              drawTimer();
+            }
+            if(num_attack == 10){
+              go_n_soldiers();
+            }
+          });
+        });
+      }
+      function go_n_soldiers(){  
+        Waiter_collect = 4;
+        soldiers_collect();
+      }
+      function attack(){
+        Waiter_attack -= 0.05;
+        if(Waiter_attack <= 0) {
+          clearTimeout(WaitTimeout2);
+          
+          return;
+        }
+        ctx.drawImage(pool,BackGroundX,BackGroundY, BackGroundSizeX, BackGroundSizeY);
+        
+
+        Dx = 0; Dy = 0; x1 = 0; y1 = 0; Dxy = 0; x_c = 0; y_c = 0; c_sum = 0;
+        var num_of_soldiers_i = 0;
+        draw_n_soldiers_blue(blue_army.x, blue_army.y, blue_army.size, num_of_soldiers_current, num_of_soldiers);      
+        var big_soldier_size_x = 35 * (1 + blue_soldier_size/10);
+        var big_soldier_size_y = 55 * (1 + blue_soldier_size/10);
+        Dx = fort3.x - (blue_army.x + 165 - big_soldier_size_x/2);
+        Dy = fort3.y - (blue_army.y + 155 - big_soldier_size_y);
+        ctx.drawImage(warrior_blue,blue_army.x + 165 - big_soldier_size_x/2 + Dx*(1-Waiter_attack/4), blue_army.y + 155 - big_soldier_size_y + Dy*(1-Waiter_attack/4), big_soldier_size_x, big_soldier_size_y);
+        draw_forts();
+
+        var Dx = 0, Dy = 0, x1 = 0, y1 = 0, Dxy = 0, x_c = 0, y_c = 0, c_sum = 0;
+        var num_of_soldiers_i = 0;
+        
+        draw_n_soldiers_red(red_army.x, red_army.y, red_army.size, num_of_soldiers_current, num_of_soldiers);        
+        var big_soldier_size_x = 35 * (1 + red_soldier_size/10);
+        var big_soldier_size_y = 55 * (1 + red_soldier_size/10);
+        Dx = fort3.x - (red_army.x + 165 - big_soldier_size_x/2);
+        Dy = fort3.y - (red_army.y + 55 - big_soldier_size_y);
+        ctx.drawImage(warrior_red,red_army.x + 165 - big_soldier_size_x/2 + Dx*(1-Waiter_attack/4), red_army.y + 55 - big_soldier_size_y + Dy*(1-Waiter_attack/4), big_soldier_size_x, big_soldier_size_y); 
+
+
+        WaitTimeout2 = setTimeout('attack()', 50);
+      }
+      function soldiers_collect(){
+        Waiter_collect -= 0.05;
+        if(Waiter_collect <= 0) {
+          clearTimeout(WaitTimeout1);
+          Waiter_attack = 4;
+          attack();
+          return;
+        }
+        ctx.drawImage(pool,BackGroundX,BackGroundY, BackGroundSizeX, BackGroundSizeY);
+        draw_forts();
+        var Dx = 0, Dy = 0, x1 = 0, y1 = 0, Dxy = 0, x_c = 0, y_c = 0, c_sum = 0;
+        var num_of_soldiers_i = 0;
+        for (step1 = 0; step1 < 5; step1+=1){
+          for (step = 0; step < 10; step+=1){
+            x1 = red_army.x + step*30;
+            y1 = red_army.y + step1*20;
+            num_of_soldiers_i++;
+            if(num_of_soldiers_i > num_of_soldiers_current)
+              ctx.drawImage(warrior_red, x1, y1, red_army.size, red_army.size/7*11);
+            else
+            {
+              Dx = (4.5-step)*30;
+              Dy = -step1*20;
+              Dxy = Math.abs(Dx) + Math.abs(Dy);
+              x_c = x1 + 90*(4-Waiter_collect)*(Dx/Dxy);
+              y_c = y1 + 90*(4-Waiter_collect)*(Dy/Dxy);
+              if(Math.abs(red_army.x+165-x1) < Math.abs(x1-x_c) + 20)
+                c_sum++;
+              else
+                ctx.drawImage(warrior_red, x_c, y_c, red_army.size, red_army.size/7*11);
+            }
+          }
+        }        
+        red_soldier_size = c_sum;
+        var big_soldier_size_x = 35 * (1 + red_soldier_size/10);
+        var big_soldier_size_y = 55 * (1 + red_soldier_size/10);
+        ctx.drawImage(warrior_red,red_army.x + 165 - big_soldier_size_x/2, red_army.y + 55 - big_soldier_size_y, big_soldier_size_x, big_soldier_size_y); 
+
+        Dx = 0; Dy = 0; x1 = 0; y1 = 0; Dxy = 0; x_c = 0; y_c = 0;c_sum = 0;
+        var num_of_soldiers_i = 0;
+        for (step1 = 0; step1 < 5; step1+=1){
+          for (step = 0; step < 10; step+=1){
+            x1 = blue_army.x + step*30;
+            y1 = blue_army.y + step1*20;
+            num_of_soldiers_i++;
+            if(num_of_soldiers_i <= 50 - num_of_soldiers_current)
+              ctx.drawImage(warrior_blue, x1, y1, blue_army.size, blue_army.size/7*11);
+            else
+            {
+              Dx = (4.5-step)*30;
+              Dy = (4-step1)*20;
+              Dxy = Math.abs(Dx) + Math.abs(Dy);
+              x_c = x1 + 90*(4-Waiter_collect)*(Dx/Dxy);
+              y_c = y1 + 90*(4-Waiter_collect)*(Dy/Dxy);
+              if(Math.abs(blue_army.x+165-x1) < Math.abs(x1-x_c) + 20)
+                c_sum++;
+              else
+                ctx.drawImage(warrior_blue, x_c, y_c, blue_army.size, blue_army.size/7*11);
+            }
+          }
+        }        
+        blue_soldier_size = c_sum;
+        var big_soldier_size_x = 35 * (1 + blue_soldier_size/10);
+        var big_soldier_size_y = 55 * (1 + blue_soldier_size/10);
+        ctx.drawImage(warrior_blue,blue_army.x + 165 - big_soldier_size_x/2, blue_army.y + 155 - big_soldier_size_y, big_soldier_size_x, big_soldier_size_y);
+
+        WaitTimeout1 = setTimeout('soldiers_collect()', 50);
+      }
+      function fitst_attack(){
+        ctx.font = 'bold 30px Helvetica, Arial';
+        ctx.fillStyle = "#facc00";
+        roundRect(ctx, rect_attack.x, rect_attack.y, rect_attack.width, rect_attack.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+        roundRect(ctx, rect_num_of_soldiers.x, rect_num_of_soldiers.y, rect_num_of_soldiers.width, rect_num_of_soldiers.height, {tl: 10, br: 10, tr:10, bl:10}, true);
+        text = "Сражение через"
+        ctx.fillStyle = "white";
+        ctx.fillText(text,rect_attack.x + rect_attack.width*0.02, rect_attack.y + rect_attack.height/2+10);
+        
+
+        ctx.font = 'bold 25px Helvetica, Arial';
+        text = "Выберите размер отряда"
+        ctx.fillStyle = "white";
+        ctx.fillText(text,rect_num_of_soldiers.x + rect_num_of_soldiers.width*0.02, rect_num_of_soldiers.y + rect_num_of_soldiers.height*0.1+15);
+
+        update_num(canvas.width/2);
+
+        
+
+        var arrow = new Image();
+        arrow.src="arrow_rigth.png"; arrow.addEventListener("load", function()
+        {
+          ctx.drawImage(arrow,canvas.width/2+40,400, 150, 150);
+        }, false);
+
+      }
+      function update_num(mousePositionX){
+        ctx.lineWidth = 2;
+        ctx.strokeStyle =  "#facc00";
+        ctx.fillStyle = "#facc00";
+        ctx.beginPath();
+        ctx.rect(slider_soldiers.x-15, slider_soldiers.y, slider_soldiers.width+85, slider_soldiers.height);
+        ctx.stroke();
+        ctx.fill();
+        ctx.font = 'bold 30px Helvetica, Arial';
+        num_of_soldiers_current = parseInt(((mousePositionX - slider_soldiers.x)*num_of_soldiers)/slider_soldiers.width+1);
+        text = num_of_soldiers_current;
+        ctx.fillStyle = "black";
+        ctx.fillText(text,rect_num_of_soldiers.x + rect_num_of_soldiers.width*0.85, rect_num_of_soldiers.y + rect_num_of_soldiers.height*0.55+15);
+        ctx.beginPath();
+        ctx.rect(slider_soldiers.x, slider_soldiers.y+slider_soldiers.height/3, slider_soldiers.width, slider_soldiers.height/3);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(mousePositionX, slider_soldiers.y+slider_soldiers.height/2, 13, 0, 360, false);  
+        ctx.fill();
+        ctx.beginPath();
+        ctx.strokeStyle = "grey";
+        ctx.arc(mousePositionX, slider_soldiers.y+slider_soldiers.height/2, 13, 0, 360, false);  
+        ctx.stroke();
+        
+      }
+      function drawTimer() {
+            Waiter -= 0.1;
+            if(Waiter <= 0) {
+                //clearTimeout(WaitTimeout);
+                drawgame(10);
+                return;
+            }
+            ctx.lineWidth = 2;
+            ctx.strokeStyle =  "#facc00";
+            ctx.fillStyle = "#facc00";
+            ctx.beginPath();
+            ctx.arc(Timer_pos.x, Timer_pos.y, Timer_size, 0, 360, false);
+            ctx.stroke();
+            ctx.fill();
+            ctx.lineWidth = 20;
+            ctx.strokeStyle =  "black";
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.arc(Timer_pos.x, Timer_pos.y, Timer_size-10, -Math.PI/2+((20-Waiter)/20)*Math.PI*2, Math.PI*3/2, false);
+            ctx.stroke();
+
+
+            ctx.fillStyle = "black";
+            ctx.font = 'bold 40px Helvetica, Arial';
+            var text = Math.trunc(Waiter+0.8) 
+            ctx.fillText(text, Timer_pos.x - ctx.measureText(text).width / 2, Timer_pos.y + 13);
+            WaitTimeout = setTimeout('drawTimer()', 100);
+            
+        }
+      function getMousePos(canvas, event) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top
+        };
+      }
+      function isInside(pos, rect){
+          return pos.x > rect.x && pos.x < rect.x+rect.width && pos.y < rect.y+rect.height && pos.y > rect.y
+      }
+      canvas.addEventListener('click', function(evt) 
+      {
+        var mousePos = getMousePos(canvas, evt);
+        if (isInside(mousePos,rect)) 
+        {
+          drawgame(1);
+        }
+        if (isInside(mousePos,rect_10)) 
+        {
+          bat = 10;
+          draw_bat(ctx, 4, 2, 2);
+        }
+        if (isInside(mousePos,rect_50)) 
+        {
+          bat = 50;
+          draw_bat(ctx, 2, 4, 2);
+        }
+        if (isInside(mousePos,rect_100)) 
+        {
+          bat = 100;
+          draw_bat(ctx, 2, 2, 4);
+        }
+        if (isInside(mousePos,slider_soldiers)) 
+        {
+          update_num(mousePos.x)
+        }
+      }, false);
+        
+      
+      
+		</script>
+	</body>
+</html>
